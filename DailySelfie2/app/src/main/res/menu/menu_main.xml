@@ -1,0 +1,26 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools" tools:context=".MainActivity">
+   <item android:id="@+id/action_camera"
+         android:title="@string/camera"
+         android:icon="@drawable/ic_action_camera"
+       android:orderInCategory="0"
+        android:showAsAction="always"
+       app:showAsAction="always"/>
+    <item android:id="@+id/delete"
+        android:title="@string/delete"
+        android:orderInCategory="10"
+        app:showAsAction="never"></item>
+    <item
+        android:id="@+id/alarm"
+    android:title="Set Alarm"
+    android:orderInCategory="1"
+    app:showAsAction="never"></item>
+<item
+android:id="@+id/alarmCancel"
+android:title="Cancel alarm"
+android:orderInCategory="2"
+app:showAsAction="never"></item>
+
+
+    </menu>
