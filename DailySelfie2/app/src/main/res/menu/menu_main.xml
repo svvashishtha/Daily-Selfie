@@ -21,6 +21,10 @@ android:id="@+id/alarmCancel"
 android:title="Cancel alarm"
 android:orderInCategory="2"
 app:showAsAction="never"></item>
-
+<item
+    android:id="@+id/video"
+    android:title="Show Compilation"
+    android:orderInCategory="5"
+    app:showAsAction = "never"/>
 
     </menu>

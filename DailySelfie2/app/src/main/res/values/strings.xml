@@ -11,5 +11,6 @@
     <string name="title_activity_showimage">showimage</string>
     <string name="title_activity_alarmhandler">Alarmhandler</string>
     <string name="title_activity_notification">notification</string>
+    <string name="title_activity_compilation">compilation</string>
 
 </resources>

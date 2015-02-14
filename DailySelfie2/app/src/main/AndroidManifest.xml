@@ -26,11 +26,16 @@
             android:name="com.example.saurabh.dailyselfie.showimage"
             android:label="@string/title_activity_showimage" >
         </activity>
-        <receiver android:name=".AlarmNotificationReceiver" >
+
+        <receiver android:name="com.example.saurabh.dailyselfie.AlarmNotificationReceiver" >
+        </receiver>
+        <receiver android:name="com.example.saurabh.dailyselfie.AlarmLoggerReceiver" >
         </receiver>
 
-        <receiver android:name=".AlarmLoggerReceiver" >
-        </receiver>
+        <activity
+            android:name="com.example.saurabh.dailyselfie.compilation"
+            android:label="@string/title_activity_compilation" >
+        </activity>
     </application>
 
 </manifest>

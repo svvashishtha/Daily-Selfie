@@ -2,6 +2,8 @@ package com.example.saurabh.dailyselfie;
 
 import android.app.Activity;
 import android.app.AlarmManager;
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
@@ -14,18 +16,22 @@ import android.os.SystemClock;
 import android.provider.MediaStore;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.Toast;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -52,7 +58,7 @@ public class MainActivity extends Activity {
         gridView = (GridView) findViewById(R.id.gridView);
         adapter = new ImageAdapter(MainActivity.this, images);
         gridView.setAdapter(adapter);
-
+        registerForContextMenu(gridView);
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
             @Override
@@ -68,23 +74,7 @@ public class MainActivity extends Activity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
-        mAlarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
 
-        // Create an Intent to broadcast to the AlarmNotificationReceiver
-        mNotificationReceiverIntent = new Intent(MainActivity.this,
-                AlarmNotificationReceiver.class);
-
-        // Create an PendingIntent that holds the NotificationReceiverIntent
-        mNotificationReceiverPendingIntent = PendingIntent.getBroadcast(
-                MainActivity.this, 0, mNotificationReceiverIntent, 0);
-
-        // Create an Intent to broadcast to the AlarmLoggerReceiver
-        mLoggerReceiverIntent = new Intent(MainActivity.this,
-                AlarmLoggerReceiver.class);
-
-        // Create PendingIntent that holds the mLoggerReceiverPendingIntent
-        mLoggerReceiverPendingIntent = PendingIntent.getBroadcast(
-                MainActivity.this, 0, mLoggerReceiverIntent, 0);
         return true;
     }
     @Override
@@ -110,16 +100,34 @@ public class MainActivity extends Activity {
         else
         if(id == R.id.alarm)
         {
+            mAlarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
 
-            mAlarmManager.setRepeating(AlarmManager.ELAPSED_REALTIME,
-                    SystemClock.elapsedRealtime() ,60 * 1000
+            // Create an Intent to broadcast to the AlarmNotificationReceiver
+            mNotificationReceiverIntent = new Intent(MainActivity.this,
+                    AlarmNotificationReceiver.class);
+
+            // Create an PendingIntent that holds the NotificationReceiverIntent
+            mNotificationReceiverPendingIntent = PendingIntent.getBroadcast(
+                    MainActivity.this, 0, mNotificationReceiverIntent, 0);
+
+            // Create an Intent to broadcast to the AlarmLoggerReceiver
+            mLoggerReceiverIntent = new Intent(MainActivity.this,
+                    AlarmLoggerReceiver.class);
+
+            // Create PendingIntent that holds the mLoggerReceiverPendingIntent
+            mLoggerReceiverPendingIntent = PendingIntent.getBroadcast(
+                    MainActivity.this, 0, mLoggerReceiverIntent, 0);
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTimeInMillis(System.currentTimeMillis());
+            calendar.set(Calendar.HOUR_OF_DAY, 19);
+            calendar.set(Calendar.MINUTE,30);
+            mAlarmManager.setRepeating(AlarmManager.RTC,
+                    calendar.getTimeInMillis() ,AlarmManager.INTERVAL_DAY
                     ,
                     mNotificationReceiverPendingIntent);
 
             // Set repeating alarm to fire shortly after previous alarm
-            mAlarmManager.setRepeating(AlarmManager.ELAPSED_REALTIME,
-                    SystemClock.elapsedRealtime(),
-                    2 * 60 * 1000,
+            mAlarmManager.setRepeating(AlarmManager.RTC,calendar.getTimeInMillis() ,AlarmManager.INTERVAL_DAY,
                     mLoggerReceiverPendingIntent);
                 Toast toast = Toast.makeText(this,"Alarm has been set",Toast.LENGTH_SHORT);
                 toast.show();
@@ -132,6 +140,12 @@ public class MainActivity extends Activity {
 
             Toast toast = Toast.makeText(this,"Alarm has been cancelled",Toast.LENGTH_SHORT);
             toast.show();
+        }
+        else
+        if(id == R.id.video)
+        {
+                Intent intent = new Intent(MainActivity.this,compilation.class);
+                startActivity(intent);
         }
         return super.onOptionsItemSelected(item);
     }
@@ -192,6 +206,59 @@ class extractImages extends AsyncTask<ArrayList<String>,Integer,Integer>{
         Log.i("Asynctask","Loading images");
         return 0;
     }}
+    @Override
+    public void onCreateContextMenu(ContextMenu contextMenu,View view,ContextMenu.ContextMenuInfo info)
+
+    {
+        if(view.getId() == R.id.gridView)
+        {
+            AdapterView.AdapterContextMenuInfo menuInfo = (AdapterView.AdapterContextMenuInfo)info;
+            contextMenu.setHeaderTitle(listFile[menuInfo.position].getName());
+            contextMenu.add("View");
+            contextMenu.add("Delete");
+            contextMenu.add("Rename");
+        }
+    }
+    @Override
+    public boolean onContextItemSelected(MenuItem item)
+    {
+        String name = item.toString();
+        final AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)item.getMenuInfo();
+        if(name == "View")
+        {
+            String uri = images.get(info.position);
+            Log.i("onContextItemSelected ",""+uri);
+            Intent intent = new Intent(MainActivity.this,showimage.class);
+            intent.putExtra("imageURI",uri);
+            startActivity(intent);
+        }
+        else if(name == "Delete")
+        {
+            images.remove(info.position);
+            listFile[info.position].delete();
+            adapter.notifyDataSetChanged();
+        }
+        else if(name == "Rename")
+        {
+            final Dialog dialog = new Dialog(MainActivity.this);
+            dialog.setContentView(R.layout.dialog);
+            dialog.setTitle("title");
+
+            final EditText editText = (EditText)dialog.findViewById(R.id.rename_edit);
+            Button button_ok = (Button)dialog.findViewById(R.id.ok_button);
+            button_ok.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if(!editText.getText().equals("Enter new name") && !editText.getText().equals(""))
+                    {
+                        dialog.dismiss();
+                    }
+                }
+            });
+            dialog.show();
+        }
+        return true;
+    }
 }
     class ImageAdapter extends BaseAdapter {
         Context mContext;
