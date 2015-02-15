@@ -38,8 +38,8 @@ import java.util.List;
 
 public class MainActivity extends Activity {
     private Uri fileUri;
-    File[] listFile;
-    ArrayList<String> images;
+    public File[] listFile;
+    public ArrayList<String> images;
     ImageAdapter adapter;
     GridView gridView;
     public AlarmManager mAlarmManager;
@@ -66,6 +66,7 @@ public class MainActivity extends Activity {
                 String uri = images.get(i);
                 Intent intent = new Intent(MainActivity.this,showimage.class);
                 intent.putExtra("imageURI",uri);
+                intent.putExtra("position",i);
                 startActivity(intent);
             }
         });
@@ -251,7 +252,10 @@ class extractImages extends AsyncTask<ArrayList<String>,Integer,Integer>{
                 public void onClick(View v) {
                     if(!editText.getText().equals("Enter new name") && !editText.getText().equals(""))
                     {
-                        dialog.dismiss();
+                        File to = new File(listFile[info.position].getParent(),editText.getText().toString());
+                        listFile[info.position].renameTo(to);
+                        Log.i("new name",""+listFile[info.position].getName());
+                        //dialog.dismiss();
                     }
                 }
             });
